@@ -19,6 +19,8 @@ rule main = parse
 | "(" { Parser.LPAREN }
 | ")" { Parser.RPAREN }
 | ";;" { Parser.SEMISEMI }
+| "&&" { Parser.AMPAMP }
+| "||" { Parser.PIPPIP }
 | "+" { Parser.PLUS }
 | "*" { Parser.MULT }
 | "<" { Parser.LT }

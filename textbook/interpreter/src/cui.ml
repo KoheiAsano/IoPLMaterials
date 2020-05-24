@@ -11,8 +11,8 @@ let rec read_eval_print env =
     print_newline();
     read_eval_print newenv;
   with 
-  | Error (s) -> Printf.printf "%s\n" s;read_eval_print env;
-  | _ -> Printf.printf "Fetal error \n";read_eval_print env
+  | Error (s) -> Printf.printf "%s\n" s;read_eval_print env
+  (* | _ -> Printf.printf "Fetal error \n";read_eval_print env *)
 
 
 let initial_env =

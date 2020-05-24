@@ -3,7 +3,7 @@ open Syntax
 %}
 
 %token LPAREN RPAREN SEMISEMI
-%token PLUS MULT LT
+%token PLUS MULT LT AMPAMP PIPPIP
 %token IF THEN ELSE TRUE FALSE
 
 %token <int> INTV
@@ -18,6 +18,14 @@ toplevel :
 
 Expr :
     e=IfExpr { e }
+  | e=ORExpr { e }
+
+ORExpr :
+    l=ANDExpr PIPPIP r=ORExpr { BinOp (Or, l, r) }
+  | e=ANDExpr { e }
+
+ANDExpr :
+    l=LTExpr AMPAMP r=ANDExpr { BinOp (And, l, r) }
   | e=LTExpr { e }
 
 LTExpr :
@@ -31,6 +39,8 @@ PExpr :
 MExpr :
     l=MExpr MULT r=AExpr { BinOp (Mult, l, r) }
   | e=AExpr { e }
+
+
 
 AExpr :
     i=INTV { ILit i }
