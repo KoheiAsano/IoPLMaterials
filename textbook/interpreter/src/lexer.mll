@@ -31,7 +31,8 @@ rule main = parse
 | "->" { Parser.RARROW }
 
 | ['a'-'z'] ['a'-'z' '0'-'9' '_' '\'']*
-    { let id = Lexing.lexeme lexbuf in
+    { 
+      let id = Lexing.lexeme lexbuf in
       try
         List.assoc id reservedWords
       with
@@ -40,6 +41,7 @@ rule main = parse
 | eof { exit 0 } 
 | "(*" { comment lexbuf } and comment = 
   parse "*)" { main lexbuf }
+| "(*" { comment lexbuf }
 | eof { exit 0 } 
 | _ { comment lexbuf }
 
