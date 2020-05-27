@@ -12,7 +12,8 @@ let rec read_eval_print env =
     read_eval_print newenv;
   with 
   | Error (s) -> Printf.printf "%s\n" s;read_eval_print env
-  (* | _ -> Printf.printf "Fetal error \n";read_eval_print env *)
+  | Failure (s) -> Printf.printf "%s\n" s;read_eval_print env
+  | _ -> Printf.printf "Fetal error \n";read_eval_print env
 
 
 let initial_env =
@@ -21,4 +22,4 @@ let initial_env =
   (Environment.extend "iii" (IntV 3)
   (Environment.extend "iv" (IntV 4)
     (Environment.extend "v" (IntV 5)
-       (Environment.extend "x" (IntV 10) Environment.empty)))))
+      (Environment.extend "x" (IntV 10) Environment.empty)))))
