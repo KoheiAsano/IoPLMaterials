@@ -16,9 +16,11 @@ open Syntax
 
 toplevel :
     e=Expr SEMISEMI { Exp e }
-  | LET x=ID EQ e=Expr SEMISEMI { Decl (x,e)}
+  | LET l=LetBind { l }
 
-
+LetBind :
+    x=ID EQ e=Expr SEMISEMI {Decl (x,e, None)}
+  | x=ID EQ e=Expr LET n=LetBind {Decl (x,e, Some(n))}
 
 Expr :
     e=IfExpr { e }

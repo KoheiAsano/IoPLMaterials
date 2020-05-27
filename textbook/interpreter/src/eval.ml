@@ -64,7 +64,10 @@ let rec eval_exp env = function
       | _ ->
         err("Non-function value is applied"))
 
-let eval_decl env = function
-    Exp e -> let v = eval_exp env e in ("-", env, v)
-  | Decl (id, e) -> 
-      let v = eval_exp env e in (id, Environment.extend id v env, v)
+let rec eval_decl env = function
+    Exp e -> let v = eval_exp env e in ("-", env, v)::[]
+  | Decl (id, e, n) -> 
+      match n with 
+        Some n -> let v = eval_exp env e in (id, Environment.extend id v env, v)::eval_decl (Environment.extend id v env) n;
+      | None -> let v = eval_exp env e in (id, Environment.extend id v env, v)::[]
+      
