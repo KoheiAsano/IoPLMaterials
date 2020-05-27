@@ -3,8 +3,8 @@ open Syntax
 %}
 
 %token LPAREN RPAREN SEMISEMI
-%token PLUS MULT LT AMPAMP PIPPIP
-%token IF THEN ELSE TRUE FALSE
+%token PLUS MULT LT AMPAMP PIPPIP RARROW
+%token IF FUN THEN ELSE TRUE FALSE 
 %token LET IN EQ
 
 %token <int> INTV
@@ -23,8 +23,10 @@ Expr :
     e=IfExpr { e }
   | e=LetExpr { e }
   | e=ORExpr { e }
+  | e=FunExpr { e }
 
-
+FunExpr :
+  FUN x=ID RARROW e=Expr { FunExp (x, e) }
 
 ORExpr :
     l=ANDExpr PIPPIP r=ORExpr { BinOp (Or, l, r) }
@@ -43,10 +45,12 @@ PExpr :
   | e=MExpr { e }
 
 MExpr :
-    l=MExpr MULT r=AExpr { BinOp (Mult, l, r) }
+    l=MExpr MULT r=AppExpr { BinOp (Mult, l, r) }
+  | e=AppExpr { e }
+
+AppExpr :
+    e1=AppExpr e2=AExpr { AppExp (e1, e2) }
   | e=AExpr { e }
-
-
 
 AExpr :
     i=INTV { ILit i }
