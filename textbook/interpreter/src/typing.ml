@@ -43,16 +43,16 @@ let rec ty_exp tyenv = function
           TyBool -> if tythen = tyelse then tythen else err "type error"
           | _ -> err "condition must be bool")
   | LetExp (id, exp1, exp2) ->
-      let tyvar = ty_exp tyenv exp1 in 
-      ty_exp (Environment.extend id tyvar tyenv) exp2 
+      let tyx = ty_exp tyenv exp1 in 
+      ty_exp (Environment.extend id tyx tyenv) exp2 
   | _ -> print_string " hoge"; err ("Not Implemented!")
 
 let ty_decl tyenv = function
-    Exp e -> ty_exp tyenv e
-  (* | Decl (id, e, n) -> 
+    Exp e -> (ty_exp tyenv e, tyenv)
+  | Decl (id, e, n) -> 
     (match n with 
-    Some _n -> err ("Not Implemented!")
-  | None -> let tyvar = ty_exp tyenv e in 
-  ) *)
+    Some _n -> err ("Not Implemented! consective decl")
+  | None -> let tyx = ty_exp tyenv e in (tyx, Environment.extend id tyx tyenv)
+  )
 
   | _ -> err ("Not Implemented!")

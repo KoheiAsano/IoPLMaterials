@@ -2,12 +2,12 @@ open Eval
 open Typing
 open Syntax
 
-let rec read_eval_print env tyenv=
+let rec read_eval_print env tyenv =
   print_string "# ";
   flush stdout;
   try 
     let decl = Parser.toplevel Lexer.main (Lexing.from_channel stdin) in
-    let ty = ty_decl tyenv decl in 
+    let ty, newtyenv = ty_decl tyenv decl in 
     (* fはプリントの関数, declsは宣言の連結リスト,  *)
     let f = fun (id, _newenv, v) -> 
       Printf.printf "val %s : " id;
@@ -18,7 +18,7 @@ let rec read_eval_print env tyenv=
       let decls = eval_decl env decl in
         List.iter f (eval_decl env decl);
         match (List.hd (List.rev decls)) with 
-          (_i,newenv,_v) -> read_eval_print newenv tyenv;
+          (_i,newenv,_v) -> read_eval_print newenv newtyenv;
     
     
   with 
