@@ -71,4 +71,18 @@ let rec subst_type subs t =
           | _ -> err "unknown error")
     | TyFun (tyarg, tyret) -> TyFun(subst_type subs tyarg, subst_type subs tyret)
     | _ -> err "Not Implemented!")
-  
+
+let rec unify x = 
+  try 
+    let c = List.hd x in 
+      let x' = List.tl x in
+      (match c with 
+        TyVar (tv1), TyVar (tv2) when tv1 = tv2 -> unify x'
+        | TyFun (tyarg1, tyret1), TyFun(tyarg2, tyret2) -> unify (List.cons (tyret1, tyret2) (List.cons (tyarg1, tyarg2) x'))
+        | TyVar (tv1), ty1 -> if MySet.member tv1 (freevar_ty ty1) then err "type is ill-defined" else [(tv1,ty1)]::unify x'
+        | ty1, TyVar (tv1) -> if MySet.member tv1 (freevar_ty ty1) then err "type is ill-defined" else [(tv1,ty1)]::unify x'
+        | _, _ -> err "type error"
+      )
+  with 
+    Failure (_s) -> []
+    | _  -> err ""
