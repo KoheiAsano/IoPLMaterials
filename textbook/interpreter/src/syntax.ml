@@ -1,3 +1,4 @@
+open MySet
 (* ML interpreter / type reconstruction *)
 type id = string
 
@@ -27,8 +28,22 @@ type ty =
   | TyFun of ty * ty
   | TyList of ty
 
-let pp_ty typ = 
+let fresh_tyvar = 
+  let counter = ref 0 in 
+  let body () = 
+    let v = !counter in 
+      counter := v + 1; v
+  in body
+
+let rec freevar_ty ty = 
+  match ty with 
+  | TyVar (tv) -> MySet.singleton tv
+  | TyFun (tyarg, tyret) -> MySet.union (freevar_ty tyarg) (freevar_ty tyret)
+  | _ -> MySet.empty
+
+let rec pp_ty typ = 
   match typ with 
     TyInt -> print_string "int"
   | TyBool -> print_string "bool"
+  | TyFun (tyarg, tyret)-> pp_ty tyarg; print_string " -> ";pp_ty tyret;
   | _ -> print_string "not implemented"

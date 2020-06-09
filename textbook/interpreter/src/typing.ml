@@ -56,3 +56,19 @@ let ty_decl tyenv = function
   )
 
   | _ -> err ("Not Implemented!")
+
+type subst = (tyvar * ty) list
+
+let rec subst_type subs t = 
+  (match t with 
+    TyInt -> t
+    | TyBool -> t
+    | TyVar (tv) -> 
+        (try 
+          let _tyva,res = List.find (fun (tyv, _typ) -> tv = tyv) subs in subst_type subs res 
+        with 
+          Not_found -> err "given tyvar is not found"
+          | _ -> err "unknown error")
+    | TyFun (tyarg, tyret) -> TyFun(subst_type subs tyarg, subst_type subs tyret)
+    | _ -> err "Not Implemented!")
+  
