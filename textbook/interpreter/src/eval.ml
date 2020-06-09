@@ -3,7 +3,8 @@ open Syntax
 type exval =
     IntV of int
   | BoolV of bool
-  | ProcV of id * exp * dnval Environment.t
+  | ProcV of id * exp * dnval Environment.t ref
+
 and dnval = exval
 
 exception Error of string
@@ -14,7 +15,7 @@ let err s = raise (Error s)
 let rec string_of_exval = function
     IntV i -> string_of_int i
   | BoolV b -> string_of_bool b
-  | ProcV (id, e, env') -> id
+  | ProcV (id, _e, _env') -> id
 
 let pp_val v = print_string (string_of_exval v)
 
@@ -49,7 +50,7 @@ let rec eval_exp env = function
   | LetExp (id, exp1, exp2) ->
     let value = eval_exp env exp1 in
     eval_exp (Environment.extend id value env) exp2
-  | FunExp (id, exp) -> ProcV (id, exp, env)
+  | FunExp (id, exp) -> ProcV (id, exp, ref env)
   | AppExp (exp1, exp2) ->
     (* exp1をまず評価 at 現在の環境 *)
     let funval = eval_exp env exp1 in 
@@ -59,15 +60,28 @@ let rec eval_exp env = function
     (* 関数評価後の環境で評価をする *)
     (match funval with
         ProcV (id, body, env') -> 
-        let newenv = Environment.extend id arg env' in
+        let newenv = Environment.extend id arg !env'  in
           eval_exp newenv body
       | _ ->
         err("Non-function value is applied"))
+  | LetRecExp (id, para, exp1, exp2) -> 
+    let dummyenv = ref Environment.empty in
+    let newenv = Environment.extend id (ProcV (para, exp1, dummyenv)) env in 
+      dummyenv := newenv;
+      eval_exp newenv exp2
 
 let rec eval_decl env = function
     Exp e -> let v = eval_exp env e in ("-", env, v)::[]
   | Decl (id, e, n) -> 
-      match n with 
+      (match n with 
         Some n -> let v = eval_exp env e in (id, Environment.extend id v env, v)::eval_decl (Environment.extend id v env) n;
-      | None -> let v = eval_exp env e in (id, Environment.extend id v env, v)::[]
-      
+      | None -> let v = eval_exp env e in (id, Environment.extend id v env, v)::[])
+  | RecDecl (id, para, e) -> 
+    (* ダミーの環境への参照を作る *)
+    let dummyenv = ref Environment.empty in
+    (* 関数閉包を作り，idをこの関数閉包に写像するように現在の環境envを拡張 *)
+    let v = ProcV (para, e, dummyenv) in 
+    let newenv = Environment.extend id v env in
+    (* ダミーの環境への参照に，拡張された環境を破壊的代入してバックパッチ *)
+        dummyenv := newenv;
+        (id, newenv, v)::[]
