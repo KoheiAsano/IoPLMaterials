@@ -15,7 +15,7 @@ let err s = raise (Error s)
 let rec string_of_exval = function
     IntV i -> string_of_int i
   | BoolV b -> string_of_bool b
-  | ProcV (id, _e, _env') -> id
+  | ProcV (_) -> "<fun>"
 
 let pp_val v = print_string (string_of_exval v)
 

@@ -35,16 +35,17 @@ let fresh_tyvar =
       counter := v + 1; v
   in body
 
+(* 関数のところ, おかしい気がするけどバグはでない *)
 let rec freevar_ty ty = 
   match ty with 
   | TyVar (tv) -> MySet.singleton tv
   | TyFun (tyarg, tyret) -> MySet.union (freevar_ty tyarg) (freevar_ty tyret)
   | _ -> MySet.empty
 
-let rec pp_ty typ = 
+let rec pp_ty (typ: ty) (i: int) = 
   match typ with 
     TyInt -> print_string "int"
   | TyBool -> print_string "bool"
-  | TyFun (tyarg, tyret)-> pp_ty tyarg; print_string " -> ";pp_ty tyret;
-  | TyVar(tv) -> print_string "variable:"; print_int tv
+  | TyFun (tyarg, tyret)-> if i > 0 then print_char '(';pp_ty tyarg (i+1); print_string " -> ";pp_ty tyret (i+1);if i > 0 then print_char ')';
+  | TyVar(_tv) -> print_string "'"; print_char (char_of_int(i + 96))
   | _ -> print_string "not implemented"

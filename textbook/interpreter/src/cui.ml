@@ -11,7 +11,7 @@ let rec read_eval_print env tyenv =
     (* fはプリントの関数, declsは宣言の連結リスト,  *)
     let f = fun (id, _newenv, v) -> 
       Printf.printf "val %s : " id;
-      pp_ty ty;
+      pp_ty ty 0;
       print_string " = ";
       pp_val v;
       print_newline(); in 

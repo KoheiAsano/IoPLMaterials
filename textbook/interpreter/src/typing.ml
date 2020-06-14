@@ -26,12 +26,12 @@ let rec subst_type (subs: (tyvar * ty) list) (t: ty) :ty  =
 
 let pp_subst (subs: (tyvar * ty) list) = 
   print_string "subs";
-  List.iter (fun (tv, ty) -> print_int tv;print_string "->"; pp_ty ty) subs;
+  List.iter (fun (tv, ty) -> print_int tv;print_string "->"; pp_ty ty 0) subs;
   print_newline ()
 
 let pp_eqs (eqs: (ty * ty) list) = 
   print_string "eqs";
-  List.iter (fun (lhs, rhs) -> pp_ty lhs;print_string "="; pp_ty rhs) eqs;
+  List.iter (fun (lhs, rhs) -> pp_ty lhs 0;print_string "="; pp_ty rhs 0) eqs;
   print_newline ()
 
 
@@ -118,10 +118,20 @@ let rec ty_exp tyenv exp : (tyvar * ty) list * ty =
       (s, TyFun (subst_type s domty, ranty))
   | AppExp (exp1, exp2) -> 
     let (s1, ty1) = ty_exp tyenv exp1 in 
+    (* pp_subst s1; *)
+    pp_ty ty1 0;
+    print_newline();
     let (s2, ty2) = ty_exp tyenv exp2 in 
+    (* pp_subst s2; *)
+    pp_ty ty2 0;
+    print_newline();
     (match ty1 with 
       TyFun(tyarg, tyret) -> 
       let eqs = (eqs_of_subst s1) @ (eqs_of_subst s2) @[(tyarg,ty2);] in 
+      let s3 = unify eqs in (s3, subst_type s3 tyret)
+    | TyVar(tv) -> 
+      let tyret = TyVar (fresh_tyvar ()) in
+      let eqs = (eqs_of_subst s1) @ (eqs_of_subst s2) @[(TyVar(tv),TyFun(ty2, tyret));] in 
       let s3 = unify eqs in (s3, subst_type s3 tyret)
     | _ -> err "not a function is applied")
   | LetRecExp (id1, id2, exp1, exp2) -> 
