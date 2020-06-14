@@ -106,10 +106,10 @@ let rec ty_exp tyenv exp : (tyvar * ty) list * ty =
     let eqs = [(ty1, TyBool);(ty2, ty3);] @(eqs_of_subst s1) @ (eqs_of_subst s2) @ (eqs_of_subst s3) in
     let resub = unify eqs in (resub, subst_type resub ty3)
   | LetExp (id, exp1, exp2) -> 
-    let (sx, tyx) = ty_exp tyenv exp1 in 
-    let (s1, ty) = ty_exp (Environment.extend id tyx tyenv) exp2 in 
-    let eqs = (eqs_of_subst sx) @ (eqs_of_subst s1) in 
-    let s2 = unify eqs in (s2, subst_type s2 ty)
+    let (s1, ty1) = ty_exp tyenv exp1 in 
+    let (s2, ty2) = ty_exp (Environment.extend id ty1 tyenv) exp2 in 
+    let eqs = (eqs_of_subst s1) @ (eqs_of_subst s2) in 
+    let s3 = unify eqs in (s3, subst_type s3 ty2)
   | FunExp (id, exp) ->
     (* domain type *)
     let domty = TyVar (fresh_tyvar ()) in
@@ -123,7 +123,7 @@ let rec ty_exp tyenv exp : (tyvar * ty) list * ty =
       TyFun(tyarg, tyret) -> 
       let eqs = (eqs_of_subst s1) @ (eqs_of_subst s2) @[(tyarg,ty2);] in 
       let s3 = unify eqs in (s3, subst_type s3 tyret)
-    | _ -> err "not function type is applied")
+    | _ -> err "not a function is applied")
   | LetRecExp (id1, id2, exp1, exp2) -> 
     let domty = TyVar (fresh_tyvar ()) in 
     let retty = TyVar (fresh_tyvar ()) in
