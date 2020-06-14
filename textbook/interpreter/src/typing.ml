@@ -10,7 +10,7 @@ type tyenv = ty Environment.t
 
 type subst = (tyvar * ty) list
 
-let rec subst_type subs t = 
+let rec subst_type (subs: (tyvar * ty) list) (t: ty) :ty  = 
   (match t with 
     TyInt -> t
     | TyBool -> t
@@ -18,7 +18,7 @@ let rec subst_type subs t =
         (try 
           let _tyva,res = List.find (fun (tyv, _typ) -> tv = tyv) subs in subst_type subs res 
         with 
-          Not_found -> err "given tyvar is not found"
+          Not_found -> TyVar(tv)
           | _ -> err "unknown error")
     | TyFun (tyarg, tyret) -> TyFun(subst_type subs tyarg, subst_type subs tyret)
     | _ -> err "Not Implemented!")
@@ -72,24 +72,6 @@ let rec unify x : (tyvar * ty) list=
   with 
     Failure (_s) -> []
     (* | _  -> err "something wrong" *)
-(* 
-let ty_prim op ty1 ty2 = match op with
-Plus -> (match ty1, ty2 with 
-      TyInt, TyInt -> TyInt
-    | _ -> err ("Argument must be of integer: +"))
-| Mult -> (match ty1, ty2 with 
-  TyInt, TyInt -> TyInt
-  | _ -> err ("Argument must be of integer: *"))
-| Lt -> (match ty1, ty2 with 
-    TyInt, TyInt -> TyBool
-    | _ -> err ("Argument must be of integer: <"))
-| And -> (match ty1, ty2 with 
-    TyBool, TyBool -> TyBool
-    | _ -> err ("Argument must be of bool: &&"))
-| Or -> (match ty1, ty2 with 
-    TyBool, TyBool -> TyBool
-    | _ -> err ("Argument must be of bool: ||"))
-| _ -> err "Not Implemented!" *)
 
 (* operationが作る等式 + 返り値の型*)
 let ty_prim op ty1 ty2 = match op with
@@ -109,13 +91,13 @@ let rec ty_exp tyenv exp : (tyvar * ty) list * ty =
   | BLit _ -> ([], TyBool)
   | BinOp (op, exp1, exp2) -> 
     let (s1, ty1) = ty_exp tyenv exp1 in 
-    pp_subst s1;
+    (* pp_subst s1; *)
     let (s2, ty2) = ty_exp tyenv exp2 in 
-    pp_subst s2;
+    (* pp_subst s2; *)
     let (eqs3, ty) = ty_prim op ty1 ty2 in 
-    pp_eqs eqs3;
+    (* pp_eqs eqs3; *)
     let eqs = (eqs_of_subst s1) @ (eqs_of_subst s2) @ eqs3 in 
-    pp_eqs eqs;
+    (* pp_eqs eqs; *)
     let s3 = unify eqs in (s3, subst_type s3 ty)
   | IfExp (exp1, exp2, exp3) -> 
     let (s1, ty1) = ty_exp tyenv exp1 in 
@@ -142,7 +124,14 @@ let rec ty_exp tyenv exp : (tyvar * ty) list * ty =
       let eqs = (eqs_of_subst s1) @ (eqs_of_subst s2) @[(tyarg,ty2);] in 
       let s3 = unify eqs in (s3, subst_type s3 tyret)
     | _ -> err "not function type is applied")
-  | _ -> err "Not Implemented!"
+  | LetRecExp (id1, id2, exp1, exp2) -> 
+    let domty = TyVar (fresh_tyvar ()) in 
+    let retty = TyVar (fresh_tyvar ()) in
+    let s1, ty1 = ty_exp (Environment.extend id1 (TyFun (domty,retty)) (Environment.extend id2 domty tyenv)) exp1 in 
+    let s2, ty2 = ty_exp (Environment.extend id1 (TyFun (domty,ty1)) tyenv) exp2 in 
+    let eqs = (eqs_of_subst s1) @ (eqs_of_subst s2) @ [(retty, ty1);]in 
+    let s3 = unify eqs in (s3, subst_type s3 ty2)
+
     
 
   let ty_decl tyenv = function

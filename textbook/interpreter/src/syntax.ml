@@ -46,4 +46,5 @@ let rec pp_ty typ =
     TyInt -> print_string "int"
   | TyBool -> print_string "bool"
   | TyFun (tyarg, tyret)-> pp_ty tyarg; print_string " -> ";pp_ty tyret;
+  | TyVar(tv) -> print_string "variable:"; print_int tv
   | _ -> print_string "not implemented"
