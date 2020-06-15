@@ -150,7 +150,11 @@ let rec ty_exp tyenv exp : (tyvar * ty) list * ty =
   | Decl (id, e, n) -> 
     (match n with 
     Some _n -> err ("Not Implemented! consective decl")
-  | None -> let (_, tyx) = ty_exp tyenv e in (tyx, Environment.extend id tyx tyenv)
-  )
-
-  | _ -> err ("Not Implemented!")
+    | None -> let (_, tyx) = ty_exp tyenv e in (tyx, Environment.extend id tyx tyenv)
+    )
+  | RecDecl (id1, id2, e) -> 
+      let domty = TyVar (fresh_tyvar ()) in 
+      let retty = TyVar (fresh_tyvar ()) in
+      let s, retty = ty_exp (Environment.extend id1 (TyFun (domty,retty)) (Environment.extend id2 domty tyenv)) e in 
+      (TyFun(subst_type s domty, subst_type s retty), Environment.extend id1 (TyFun(subst_type s domty,subst_type s retty)) tyenv)
+  (* | _ -> err ("Not Implemented!") *)

@@ -93,7 +93,7 @@ AExpr :
   | LPAREN PLUS RPAREN {FunExp ("a", FunExp("b", BinOp(Plus, Var "a", Var "b")))}
   | LPAREN MULT RPAREN {FunExp ("a", FunExp("b", BinOp(Mult, Var "a", Var "b")))}
   | LPAREN LT RPAREN {FunExp ("a", FunExp("b", BinOp(Lt, Var "a", Var "b")))}
-  | LPAREN AMPAMP RPAREN {FunExp ("a", FunExp("b", BiOp(And, Var "a", Var "b")))}
+  | LPAREN AMPAMP RPAREN {FunExp ("a", FunExp("b", BinOp(And, Var "a", Var "b")))}
   | LPAREN PIPPIP RPAREN {FunExp ("a", FunExp("b", BinOp(Or, Var "a", Var "b")))}
 
 IfExpr :
