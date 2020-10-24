@@ -11,7 +11,7 @@
 
 となる．部分式の型推論で得られた型代入を方程式とみなして，再び単一化を行うのは，ひとつの部分式から $[\alpha \mapsto \tau_1]$，もうひとつからは $[\alpha \mapsto \tau_2]$ という代入が得られた時に$\tau_1$ と$\tau_2$ の整合性が取れているか（単一化できるか）を検査するためである．
 
-### Exercise ___ [必修]
+### Exercise 4.3.5 [必修]
 他の型付け規則に関しても同様に型推論の手続きを与えよ(レポートの一部としてまとめよ)．そして，以下の `typing.ml` に加えるべき変更の解説を参考にして，型推論アルゴリズムの実装を完成させよ．
 
 {% highlight ocaml %}
@@ -68,7 +68,7 @@ let rec ty_exp tyenv exp =
   | _ -> Error.typing ("Not Implemented!")
 {% endhighlight %}
 
-### Exercise ___ [**]
+### Exercise 4.3.6 [**]
 再帰的定義のための `let rec` 式の型付け規則は以下のように与えられる．
 
 $$
@@ -76,7 +76,7 @@ $$
 \Gamma, f: \tau_1 \rightarrow \tau_2, x: \tau_1 \vdash e_1 : \tau_2 \quad
 \Gamma, f:\tau_1 \rightarrow \tau_2 \vdash e_2 : \tau\\
 \rule{13cm}{1pt}\\
-\Gamma \vdash \mathbf{let\ rec}\ f = \mathbf{fun}\ x\ \rightarrow e_1\ \mathbf{in}\ e_2 : \tau_2
+\Gamma \vdash \mathbf{let\ rec}\ f = \mathbf{fun}\ x\ \rightarrow e_1\ \mathbf{in}\ e_2 : \tau
 \end{array}
 \textrm{T-LetRec}
 $$
@@ -85,7 +85,7 @@ $$
 
 
 
-### Exercise ___ [**]
+### Exercise 4.3.7 [**]
 
 以下は，リスト操作に関する式の型付け規則である．リストには要素の型を $\tau$ として $\tau\ \mathbf{list}$ という型を与える．型推論アルゴリズムがこれらの式を扱えるように拡張せよ．
 
