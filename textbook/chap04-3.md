@@ -30,7 +30,7 @@ $$
 
 <a name="derivation">再帰呼び出しと導出木の構造</a>: 明示的に導出木を構築していないので，なぜこれで「導出木を構築している」ことになるのかよくわからないかもしれない．この型推論アルゴリズムは再帰呼出しをしているが，この再帰呼出しの構造が導出木に対応している．
 
-### Exercise ___ [必修]
+### Exercise 4.2.1 [必修]
 MiniML2 のための型推論アルゴリズムを実装するためにコードに加えるべき変更を以下に示す．これを参考にしつつ，上記の$\textrm{T-Int}$と$\textrm{T-Plus}$のケースにならって，すべての場合について型推論アルゴリズムを完成させよ．また，インタプリタに変更を加え，型推論ができるようにせよ．
 
 #### `syntax.ml` への変更
@@ -73,7 +73,10 @@ let initial_tyenv =
    Environment.extend "i" TyInt
      (Environment.extend "v" TyInt
        (Environment.extend "x" TyInt Environment.empty))
+{% endhighlight %}
 
+### `main.ml` への変更
+{% highlight ocaml %}
 (* New! initial_tyenv を REPL の最初の呼び出しで渡す *)
 let _ = read_eval_print initial_env initial_tyenv
 {% endhighlight %}
