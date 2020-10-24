@@ -5,8 +5,24 @@ exception Error of string
 let err s = raise (Error s)
 
 (* Type Environment *)
-type tyenv = ty Environment.t
 
+
+type tysc = TyScheme of tyvar list * ty
+let tysc_of_ty ty = TyScheme ([], ty)
+
+let freevar_tysc tysc = 
+  match tysc with 
+  | ([], ty) -> freevar_ty ty
+  | (scheme, ty) -> MySet.diff (freevar_ty ty) (MySet.from_list scheme)
+  | _ -> MySet.empty
+
+type tyenv = tysc Environment.t
+
+let rec freevar_tyenv (tyenv: tyenv) = 
+    Environment.fold_right (fun e a -> freevar_tysc (List.hd e)) tyenv 0
+
+let closure ty tyenv subst = 
+  let ty_tyenv' = freevar_tyenv 
 
 type subst = (tyvar * ty) list
 
@@ -158,3 +174,4 @@ let rec ty_exp tyenv exp : (tyvar * ty) list * ty =
       let s, retty = ty_exp (Environment.extend id1 (TyFun (domty,retty)) (Environment.extend id2 domty tyenv)) e in 
       (TyFun(subst_type s domty, subst_type s retty), Environment.extend id1 (TyFun(subst_type s domty,subst_type s retty)) tyenv)
   (* | _ -> err ("Not Implemented!") *)
+
